@@ -114,7 +114,7 @@ This command will output the direct URL (IP and port) to open in your browser.
 
 Get the external IP address:
 ```bash
-kubectl get service my-vs-code-release-service --namespace default
+kubectl get service code-ser --namespace default
 ```
 Wait for the `EXTERNAL-IP` field to be populated (this might take a few minutes). Then, navigate to `https://<EXTERNAL-IP>:<NodePort>` in your browser. (The NodePort will be shown in the service output, e.g., `8443:31234/TCP` means the NodePort is `31234`).
 
@@ -151,7 +151,7 @@ The easiest way is with `kubectl port-forward`:
     ```bash
     kubectl get pods -n default -l app=code-server
     ```
-    It will look something like `my-vs-code-release-code-server-xxxxxxxx-abcde`.
+    It will look something like `my-vs-code-xxxxxxxx-abcde`.
 
 2.  **Forward a local port to the pod's port:**
     This example forwards your local port `8080` to port `8080` inside the pod where your application is running.
@@ -173,7 +173,7 @@ The easiest way is with `kubectl port-forward`:
 
 To remove the VS Code environment from your cluster:
 ```bash
-helm uninstall my-vs-code-release --namespace default
+helm uninstall my-vs-code --namespace default
 ```
 If you also want to delete the persistent data (your code and settings):
 ```bash
