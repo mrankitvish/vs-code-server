@@ -23,7 +23,7 @@ spec:
           emptyDir: {}
         - name: tls-certs
           secret:
-            secretName:  {{ .Values.codeServer.tlsSecretName }}
+            secretName: {{ .Values.tlsSecretName }}
       initContainers:
       containers:
         - name: dind-daemon
