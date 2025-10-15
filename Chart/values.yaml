@@ -1,0 +1,21 @@
+namespace: default
+username: admin
+password: supersecret
+storageSize: 10Gi
+
+codeServer:
+  image: mrankitvish/coder-server:4.104.3-focal
+  containerPort: 8443
+  serviceType: NodePort
+
+resources:
+  limits:
+    cpu: 4
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+pvcName: code-server-pvc
+tlsSecretName: code-server-tls
+

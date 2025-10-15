@@ -1,0 +1,103 @@
+{{- /*
+This file is displayed to the user after a successful 'helm install' or 'helm upgrade'.
+It provides next steps and important information.
+*/ -}}
+
+{{- $releaseName := .Release.Name -}}
+{{- $namespace := .Release.Namespace -}}
+{{- $serviceName := printf "%s-service" $releaseName -}}
+{{- $password := .Values.password -}}
+
+Congratulations! VS Code Server has been successfully deployed.
+
+Release Name: {{ $releaseName }}
+Namespace: {{ $namespace }}
+
+-------------------------------------------------------------------------------
+ACCESSING YOUR VS CODE SERVER
+-------------------------------------------------------------------------------
+
+You can access your VS Code instance using one of the following methods:
+
+Method 1: Using kubectl port-forward (Recommended for quick access)
+  1. Run the following command in your terminal (keep it running):
+     kubectl port-forward -n {{ $namespace }} svc/{{ $serviceName }} 8443:{{ .Values.codeServer.containerPort }}
+  2. Open your browser and navigate to:
+     https://localhost:8443
+
+Method 2: Using Minikube (If you are using Minikube)
+  1. Run the following command to get the direct URL:
+     minikube service -n {{ $namespace }} {{ $serviceName }} --url
+  2. Open the provided URL in your browser.
+
+Method 3: Using NodePort (If your service type is NodePort)
+  1. Get the NodePort and Node IP:
+     kubectl get service -n {{ $namespace }} {{ $serviceName }}
+  2. Access via: https://<NODE_IP>:<NODE_PORT>
+
+Method 4: Using LoadBalancer (If your service type is LoadBalancer)
+  1. Get the external IP:
+     kubectl get service -n {{ $namespace }} {{ $serviceName }}
+  2. Access via: https://<EXTERNAL_IP>:<NODE_PORT> (or your configured domain)
+
+-------------------------------------------------------------------------------
+IMPORTANT NOTES
+-------------------------------------------------------------------------------
+
+1.  LOGIN:
+    When you access the URL, you will be prompted for a password.
+    Your password is: {{ $password }}
+
+2.  BROWSER SECURITY WARNING:
+    You will likely see a browser security warning about the SSL certificate being untrusted or self-signed.
+    This is expected if you are using self-signed certificates or a certificate for a different domain/IP.
+    Click "Advanced" and then "Proceed to <your-ip-or-domain>" (or similar wording) to continue.
+
+3.  PERSISTENT STORAGE:
+    Your code, VS Code settings, and installed extensions are stored in a Persistent Volume Claim (PVC).
+    This data will persist across pod restarts. The PVC name is: {{ .Values.pvcName }}
+
+-------------------------------------------------------------------------------
+USING DOCKER-IN-DOCKER (DIND)
+-------------------------------------------------------------------------------
+
+This deployment includes a Docker-in-Docker (DIND) sidecar container. You can run Docker commands
+directly from the VS Code integrated terminal.
+
+1.  Open the VS Code terminal (Terminal -> New Terminal).
+2.  You can now use Docker CLI commands. For example:
+    docker --version
+    docker pull nginx:latest
+    docker run -d -p 8080:80 --name my-nginx nginx:latest
+    docker ps
+
+Note: The Docker daemon runs in a privileged container. Be aware of the security implications.
+
+-------------------------------------------------------------------------------
+ACCESSING APPLICATIONS RUNNING INSIDE THE POD
+-------------------------------------------------------------------------------
+
+If you run a web application inside the VS Code pod (e.g., the Nginx example above on port 8080),
+you can access it from your local machine using `kubectl port-forward`:
+
+1.  Find your VS Code pod name:
+    kubectl get pods -n {{ $namespace }} -l app.kubernetes.io/name=code-server
+
+2.  Forward a local port to the application's port inside the pod.
+   For example, to forward local port 9000 to port 8080 inside the pod:
+    kubectl port-forward -n {{ $namespace }} <your-vs-code-pod-name> 9000:8080
+
+3.  Open your browser and navigate to:
+    http://localhost:9000
+
+-------------------------------------------------------------------------------
+NEXT STEPS & FURTHER INFORMATION
+-------------------------------------------------------------------------------
+
+- For more detailed information, customization options, and troubleshooting,
+  please refer to the main README.md file of this project.
+- To manage your deployment (upgrade, rollback, uninstall), use Helm commands.
+  Example: helm upgrade {{ $releaseName }} . -f my-values.yaml -n {{ $namespace }}
+- To uninstall the release: helm uninstall {{ $releaseName }} -n {{ $namespace }}
+
+Happy Coding!

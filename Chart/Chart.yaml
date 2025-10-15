@@ -1,0 +1,6 @@
+apiVersion: v2
+name: code-server
+description: Deploy code-server with self-signed SSL and persistent storage
+version: 0.1.0
+appVersion: "4.90.1"
+

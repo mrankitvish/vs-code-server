@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-server
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-server
+  template:
+    metadata:
+      labels:
+        app: code-server
+    spec:
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - name: code-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.pvcName }}
+        - name: docker-graph-storage
+          emptyDir: {}
+        - name: tls-certs
+          secret:
+            secretName: code-server-tls
+      containers:
+        - name: dind-daemon
+          image: docker:dind
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: docker-graph-storage
+              mountPath: /var/lib/docker
+
+        - name: code-server
+          image: {{ .Values.codeServer.image }}
+          ports:
+            - containerPort: {{ .Values.codeServer.containerPort }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          env:
+            - name: PASSWORD
+              value: {{ .Values.password }}
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+          args:
+            - "--cert=/etc/code-server/tls/tls.crt"
+            - "--cert-key=/etc/code-server/tls/tls.key"
+            - "--bind-addr=0.0.0.0:{{ .Values.codeServer.containerPort }}"
+          volumeMounts:
+            - name: code-data
+              mountPath: /home/coder
+            - name: tls-certs
+              mountPath: /etc/code-server/tls
+              readOnly: true
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: 500m
+              memory: 512Mi
+
