@@ -92,58 +92,11 @@ kubectl create secret tls code-server-tls-secret \
 *   `code-server-tls-secret`: This is the name of the secret. You can change it, but you'll need to update the Helm values accordingly.
 *   `--namespace default`: Deploy the secret in the `default` namespace. Change this if you're using a different namespace.
 
-### Step 4: Configure and Deploy
-
-1.  **Create a `my-values.yaml` file:** This file will hold your custom configurations. Copy the example below and modify it as needed.
-
-    ```yaml
-    # my-values.yaml
-
-    # --- IMPORTANT: CHANGE THESE VALUES ---
-
-    # A strong password for accessing your VS Code instance.
-    # DO NOT use the default password in a production environment!
-    # password: "your-very-strong-and-secret-password"
-    password: "password"
-
-    # The name of the Kubernetes TLS secret you created in Step 3.
-    tlsSecretName: "code-server-tls-secret"
-
-    # The namespace where you want to deploy VS Code.
-    namespace: "default"
-
-    # --- OPTIONAL: CUSTOMIZE THESE VALUES ---
-
-    # The custom Docker image for code-server with tools.
-    # This should be pre-built and pushed to a registry you have access to.
-    # Example: "your-dockerhub-username/code-server-dev-tools:v1.0.0"
-    # The maintainer of this project should provide the correct image name.
-    codeServer:
-      image: "mrankitvish/coder-server:4.104.3-focal" # Replace with the actual image name
-
-    # Size of the persistent storage for your code and settings.
-    storageSize: "10Gi"
-
-    # Kubernetes service type for accessing VS Code.
-    # - NodePort: Good for Minikube or direct node access.
-    # - LoadBalancer: Good for cloud providers (GKE, EKS, AKS).
-    serviceType: "NodePort"
-
-    # Resource limits for the code-server container.
-    resources:
-      limits:
-        cpu: "2"
-        memory: "2Gi"
-      requests:
-        cpu: "500m"
-        memory: "512Mi"
-    ```
-
-2.  **Deploy the Helm Chart:**
-    Run the following command from your terminal.
-    ```bash 
-    helm install my-vs-code ./Charts -f my-values.yaml --namespace default --create-namespace
-    ```
+### Step 4: Deploy
+Run the following command from your terminal.
+```bash 
+helm install my-vs-code ./Chart  --set namespace=default
+```
 
 ### Step 5: Access Your VS Code Environment
 

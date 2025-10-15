@@ -17,5 +17,5 @@ resources:
     memory: 512Mi
 
 pvcName: code-server-pvc
-tlsSecretName: code-server-tls
+tlsSecretName: code-server-tls-secret
 
